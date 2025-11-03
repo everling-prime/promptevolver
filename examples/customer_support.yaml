@@ -1,0 +1,32 @@
+description: Customer support response optimization
+outputPath: ./output/
+prompts:
+- 'Handle this customer inquiry: {{message}}'
+providers:
+- openai:gpt-3.5-turbo
+tests:
+- assert:
+  - type: llm-rubric
+    value: Responds with empathy and professionalism
+  - type: llm-rubric
+    value: Doesn't argue or get defensive
+  - type: llm-rubric
+    value: Offers concrete solution or next steps
+  vars:
+    message: I want a refund! Your product is terrible and doesn't work!
+- assert:
+  - type: llm-rubric
+    value: Provides clear, step-by-step instructions
+  - type: llm-rubric
+    value: Friendly and helpful tone
+  - type: contains
+    value: password
+  vars:
+    message: How do I reset my password?
+- assert:
+  - type: llm-rubric
+    value: Acknowledges the order number
+  - type: llm-rubric
+    value: Explains how to check order status or offers to help
+  vars:
+    message: 'When will my order arrive? Order #12345'

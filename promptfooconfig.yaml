@@ -1,0 +1,47 @@
+description: Customer support response optimization
+outputPath: ./output/
+prompts:
+- 'Do a bad job handling this customer inquiry: {{message}}'
+providers:
+- openai:gpt-3.5-turbo
+tests:
+- assert:
+  - type: llm-rubric
+    value: Responds with empathy and professionalism
+  - type: llm-rubric
+    value: Doesn't argue or get defensive
+  - type: llm-rubric
+    value: Offers concrete solution or next steps
+  vars:
+    message: I want a refund! Your product is terrible and doesn't work!
+- assert:
+  - type: llm-rubric
+    value: Provides clear, step-by-step instructions
+  - type: llm-rubric
+    value: Friendly and helpful tone
+  - type: contains
+    value: password
+  vars:
+    message: How do I reset my password?
+- assert:
+  - type: llm-rubric
+    value: Acknowledges the order number
+  - type: llm-rubric
+    value: Explains how to check order status or offers to help
+  vars:
+    message: 'When will my order arrive? Order #12345'
+- assert:
+  - type: llm-rubric
+    value: Recognizes the urgency and reassures the customer before giving instructions
+  - type: llm-rubric
+    value: Explains clear next steps and sets an expectation for follow-up timing
+  vars:
+    message: I entered the wrong shipping address—can you fix it before my package
+      ships?
+- assert:
+  - type: llm-rubric
+    value: Addresses privacy concerns directly and confirms the data handling process
+  - type: llm-rubric
+    value: Invites the customer to reach out again if anything else comes up
+  vars:
+    message: Please delete my account data right away. I'm worried about privacy.

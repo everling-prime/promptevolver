@@ -1,0 +1,56 @@
+description: "Code review assistant optimization"
+
+prompts:
+  - |
+    Review this code:
+    {{code}}
+
+providers:
+  - openai:gpt-3.5-turbo
+
+tests:
+  # Test 1: Simple but correct code
+  - vars:
+      code: |
+        def calculate_total(items):
+            total = 0
+            for item in items:
+                total = total + item
+            return total
+    assert:
+      - type: llm-rubric
+        value: "Provides constructive feedback about the code"
+      - type: llm-rubric
+        value: "Identifies that code is correct but could use sum() builtin"
+      - type: llm-rubric
+        value: "Tone is encouraging and educational, not harsh"
+
+  # Test 2: Division by zero bug
+  - vars:
+      code: |
+        def divide(a, b):
+            return a / b
+    assert:
+      - type: llm-rubric
+        value: "Identifies the critical bug: no check for division by zero"
+      - type: llm-rubric  
+        value: "Suggests specific fix with example code"
+      - type: llm-rubric
+        value: "Explains why this matters (runtime error)"
+
+  # Test 3: Security vulnerability
+  - vars:
+      code: |
+        import requests
+        
+        response = requests.get(user_input)
+        data = response.json()
+    assert:
+      - type: llm-rubric
+        value: "Identifies security vulnerability: unsanitized user input"
+      - type: llm-rubric
+        value: "Identifies missing error handling for network request"
+      - type: llm-rubric
+        value: "Suggests specific improvements with examples"
+
+outputPath: ./output/

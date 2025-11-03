@@ -1,0 +1,42 @@
+description: "SQL query generation optimization"
+
+prompts:
+  - "Generate SQL for: {{request}}"
+
+providers:
+  - openai:gpt-3.5-turbo
+
+tests:
+  - vars:
+      request: "Find all users who signed up last month"
+    assert:
+      - type: llm-rubric
+        value: "Generates valid SQL syntax"
+      - type: llm-rubric
+        value: "Uses proper date filtering for 'last month'"
+      - type: llm-rubric
+        value: "Includes comments explaining the query"
+      - type: contains
+        value: "SELECT"
+
+  - vars:
+      request: "Count orders by status"
+    assert:
+      - type: llm-rubric
+        value: "Uses GROUP BY correctly"
+      - type: llm-rubric
+        value: "Uses COUNT aggregate function"
+      - type: contains
+        value: "GROUP BY"
+
+  - vars:
+      request: "Show me the top 10 customers by revenue"
+    assert:
+      - type: llm-rubric
+        value: "Uses ORDER BY and LIMIT correctly"
+      - type: llm-rubric
+        value: "Calculates revenue appropriately"
+      - type: contains
+        value: "LIMIT 10"
+
+outputPath: ./output/
