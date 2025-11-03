@@ -19,38 +19,34 @@ PromptEvolver is a Python CLI tool that automatically optimizes prompts by:
    ./setup.sh
    ```
 
-2. **Activate the virtual environment:**
+2. **Add your API keys to `.env`:**
+   The setup script creates `.env` if it does not exist. Open it in your editor and set values such as:
    ```bash
-   source .venv/bin/activate          # macOS/Linux
-   # or
-   .venv\\Scripts\\activate         # Windows PowerShell
+   OPENAI_API_KEY=sk-...
    ```
 
-3. **Start Ollama (for local reasoning, optional if using OpenAI):**
+3. **Start Ollama (optional – skip if using --use-openai-nano):**
    ```bash
    ollama serve
    # In another terminal:
-   ollama pull phi4-mini-reasoning
+   ollama pull qwen3:0.6b
    ```
 
-4. **Set your OpenAI API key (for promptfoo tests or --use-openai-nano):**
+4. **Run optimization (uv handles the virtualenv automatically):**
    ```bash
-   export OPENAI_API_KEY='your-api-key-here'
+   uv run promptevolver.py
+   # add --use-openai-nano to rely solely on OpenAI reasoning
    ```
 
-5. **Run optimization:**
+5. **View results or compare iterations:**
    ```bash
-   python promptevolver.py
-   ```
-
-6. **View results or compare iterations:**
-   ```bash
-   python promptevolver.py --view-iteration 1
+   uv run promptevolver.py --view-iteration 1
+   uv run promptevolver.py --compare
    ```
 
 ## What Happens During a Run
 
-When you execute `python promptevolver.py`, the CLI orchestrates the following steps:
+When you execute `uv run promptevolver.py`, the CLI orchestrates the following steps:
 
 1. **Argument parsing & mode selection** – determines whether to run optimization or open the promptfoo viewer, and notes if you requested the OpenAI reasoning path with `--use-openai-nano`.
 2. **Config + environment load** – reads the promptfoo YAML, extracts the initial prompt list, and loads any keys from the `.env` file next to `promptevolver.py`. The original prompts are cached so the file can be restored when the run ends.
@@ -65,7 +61,7 @@ When you execute `python promptevolver.py`, the CLI orchestrates the following s
 
 ## Features
 
-- 🧠 **Local Reasoning**: Uses Ollama phi4-mini-reasoning for private, fast analysis
+- 🧠 **Local Reasoning**: Uses Ollama phi4-mini-reasoning for private, fast analysis (or OpenAI `gpt-5-nano` with `--use-openai-nano`)
 - 📊 **Visual Feedback**: Clear progress indicators and result summaries  
 - 🔄 **Smart Improvement**: Automatically generates better prompts with simplification bias
 - 📁 **Iteration Tracking**: Saves each optimization round for comparison
@@ -78,16 +74,17 @@ When you execute `python promptevolver.py`, the CLI orchestrates the following s
 
 ```bash
 # Run optimization with default settings
-python promptevolver.py
+uv run promptevolver.py
 
-# Custom configuration
-python promptevolver.py --config examples/customer_support.yaml --iterations 5 --model o4-mini
+# Custom configuration / iteration count
+uv run promptevolver.py --config examples/customer_support.yaml --iterations 5 --model o4-mini
 
-# View specific iteration
-python promptevolver.py --view-iteration 2
+# Use OpenAI gpt-5-nano for reasoning instead of Ollama
+uv run promptevolver.py --use-openai-nano
 
-# Compare all iterations
-python promptevolver.py --compare
+# View or compare iterations in the promptfoo UI
+uv run promptevolver.py --view-iteration 2
+uv run promptevolver.py --compare
 ```
 
 ## Configuration
@@ -97,10 +94,10 @@ PromptEvolver uses promptfoo YAML configuration files. See `promptfooconfig.yaml
 ## Requirements
 
 - Python 3.10+
-- Node.js (for promptfoo)
-- **Ollama** (for local reasoning model) - [Install from ollama.com](https://ollama.com)
-- OpenAI API key (for promptfoo tests)
-- uv package manager (installed by setup.sh)
+- Node.js (for promptfoo CLI)
+- **Ollama** (for local reasoning model, unless you use `--use-openai-nano`) – [ollama.com](https://ollama.com)
+- OpenAI API key stored in `.env`
+- uv package manager (installed by `setup.sh`)
 
 ## License
 
