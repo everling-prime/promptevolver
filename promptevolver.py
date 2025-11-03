@@ -177,13 +177,21 @@ class PromptEvolver:
                 timeout=120
             )
             response.raise_for_status()
-            result = response.json()['response'].strip()
+            
+            data = response.json()
+            result = data.get('response', '').strip()
+            
+            if not result:
+                raise RuntimeError("Ollama returned empty response")
             
             # Remove thinking tags if requested
             if clean_thinking:
-                # Remove everything between <think> and </think> tags
-                result = re.sub(r'<think>.*?</think>', '', result, flags=re.DOTALL)
+                # Remove everything between </think> and </think> tags
+                result = re.sub(r'</think>.*?</think>', '', result, flags=re.DOTALL)
                 result = result.strip()
+            
+            if not result:
+                raise RuntimeError("Ollama response became empty after cleaning")
             
             return result
         except Exception as e:
@@ -457,7 +465,50 @@ Output ONLY valid JSON:
 
         try:
             response_text = self._call_reasoning_model(analysis_prompt)
-            data = json.loads(response_text)
+            
+            if not response_text:
+                return "Empty response from reasoning model", ["Review failed tests manually"]
+            
+            # Extract JSON from code blocks if present
+            json_text = response_text
+            if '```json' in response_text:
+                start = response_text.find('```json') + 7
+                end = response_text.find('```', start)
+                if end != -1:
+                    json_text = response_text[start:end].strip()
+            elif '```' in response_text:
+                start = response_text.find('```') + 3
+                end = response_text.find('```', start)
+                if end != -1:
+                    json_text = response_text[start:end].strip()
+            
+            try:
+                data = json.loads(json_text)
+            except json.JSONDecodeError as je:
+                print(f"⚠️  JSON parsing failed: {je}")
+                # Try to extract suggestions using regex as fallback
+                try:
+                    import re
+                    suggestions = []
+                    reasoning = "Analysis completed but JSON parsing failed"
+                    
+                    # Extract reasoning
+                    reasoning_match = re.search(r'"reasoning":\s*"([^"]+)"', json_text)
+                    if reasoning_match:
+                        reasoning = reasoning_match.group(1)
+                    
+                    # Extract suggestions
+                    suggestion_matches = re.findall(r'"([^"]+)"', json_text)
+                    for match in suggestion_matches:
+                        if 'Suggestion' in match or len(match) > 20:
+                            suggestions.append(match)
+                    
+                    if suggestions:
+                        return reasoning, suggestions[:5]
+                except:
+                    pass
+                
+                return f"JSON parsing failed: {je}", ["Review failed tests manually"]
             
             reasoning = data.get('reasoning', 'Analysis failed')
             suggestions = data.get('suggestions', [])

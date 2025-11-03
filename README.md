@@ -10,7 +10,7 @@ PromptEvolver is a Python CLI tool that automatically optimizes prompts by:
 - Generating improved prompts based on the analysis
 - Repeating until optimal performance is achieved
 
-**Key Innovation**: Uses a lightweight local reasoning model (phi4-mini-reasoning) for intelligent evaluation, while promptfoo tests use OpenAI models. This hybrid approach provides fast, private reasoning with high-quality test execution.
+**Key Innovation**: Uses a lightweight local reasoning model (user-specified) for intelligent evaluation, while promptfoo tests use OpenAI models. This hybrid approach provides fast, private reasoning with high-quality test execution.
 
 ## Quick Start
 
